@@ -7,7 +7,6 @@ SCRIPT="$PROJECT_DIR/fetch_weather.py"
 
 cd "$PROJECT_DIR" || exit 1
 
-# Luo venv vain jos ei ole olemassa
 if [ ! -d "$VENV_DIR" ]; then
     echo "Creating venv..."
     python3 -m venv "$VENV_DIR"
@@ -18,5 +17,4 @@ else
     source "$VENV_DIR/bin/activate"
 fi
 
-# Aja skripti
 python "$SCRIPT"
