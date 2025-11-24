@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, redirect, url_for
 import mysql.connector
 from mysql.connector import Error
 import tomllib
@@ -22,13 +22,25 @@ WEATHER_CITY = api_cfg["city"]
 app = Flask(__name__)
 CORS(app)
 
+BASE_PATH = "/data-analysis"
+
+
+@app.route("/")
+def root_redirect():
+    return redirect(url_for("app_root"))
+
+
+@app.route(f"{BASE_PATH}/")
+def app_root():
+    return jsonify({"message": "Weather analysis app is running"})
+
 def to_local_time_str(ts: datetime) -> str:
     if ts.tzinfo is None:
         ts = ts.replace(tzinfo=ZoneInfo("UTC"))
     tz_local = ts.astimezone(ZoneInfo("Europe/Helsinki"))
     return tz_local.strftime("%Y-%m-%d %H:%M")
 
-@app.route("/api/weather/latest")
+@app.route(f"{BASE_PATH}/api/weather/latest")
 def api_weather_latest():
     try:
         conn = mysql.connector.connect(
@@ -57,7 +69,7 @@ def api_weather_latest():
     except Error as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/weather/history")
+@app.route(f"{BASE_PATH}/api/weather/history")
 def api_weather_history():
     try:
         conn = mysql.connector.connect(
@@ -86,7 +98,7 @@ def api_weather_history():
     except Error as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/other")
+@app.route(f"{BASE_PATH}/api/other")
 def api_other():
     try:
         res = requests.get("https://randomuser.me/api/")
