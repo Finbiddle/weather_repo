@@ -1,3 +1,4 @@
+from pathlib import Path
 from flask import Flask, jsonify, redirect, url_for
 import mysql.connector
 from mysql.connector import Error
@@ -7,7 +8,12 @@ from zoneinfo import ZoneInfo
 from flask_cors import CORS
 import requests
 
-with open("secrets.toml", "rb") as f:
+BASE_DIR = Path(__file__).resolve().parent
+DEFAULT_SECRET_FILE = BASE_DIR / "salaiset_jutut_eli_salasanat.toml"
+LEGACY_SECRET_FILE = BASE_DIR / "secrets.toml"
+SECRET_FILE = DEFAULT_SECRET_FILE if DEFAULT_SECRET_FILE.exists() else LEGACY_SECRET_FILE
+
+with open(SECRET_FILE, "rb") as f:
     secrets = tomllib.load(f)
 
 db_cfg = secrets["mysql"]

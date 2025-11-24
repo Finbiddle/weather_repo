@@ -6,7 +6,11 @@ from pathlib import Path
 import tomllib
 
 BASE_DIR = Path(__file__).resolve().parent
-with open(BASE_DIR / "secrets.toml", "rb") as f:
+DEFAULT_SECRET_FILE = BASE_DIR / "salaiset_jutut_eli_salasanat.toml"
+LEGACY_SECRET_FILE = BASE_DIR / "secrets.toml"
+SECRET_FILE = DEFAULT_SECRET_FILE if DEFAULT_SECRET_FILE.exists() else LEGACY_SECRET_FILE
+
+with open(SECRET_FILE, "rb") as f:
     secrets = tomllib.load(f)
 
 api_cfg = secrets["api"]
