@@ -6,8 +6,26 @@ from pathlib import Path
 import tomllib
 
 BASE_DIR = Path(__file__).resolve().parent
-with open(BASE_DIR / "secrets.toml", "rb") as f:
-    secrets = tomllib.load(f)
+DEFAULT_SECRET_FILE = BASE_DIR / "secrets.toml"
+ALTERNATE_SECRET_FILE = BASE_DIR / "salaiset_jutut_eli_salasanat.toml"
+
+
+def load_secrets() -> dict:
+    if DEFAULT_SECRET_FILE.exists():
+        secret_file = DEFAULT_SECRET_FILE
+    elif ALTERNATE_SECRET_FILE.exists():
+        secret_file = ALTERNATE_SECRET_FILE
+    else:
+        raise FileNotFoundError(
+            "Missing secrets file: expected default 'secrets.toml' or alternate "
+            "'salaiset_jutut_eli_salasanat.toml' in the application directory."
+        )
+
+    with open(secret_file, "rb") as f:
+        return tomllib.load(f)
+
+
+secrets = load_secrets()
 
 api_cfg = secrets["api"]
 db_cfg = secrets["mysql"]
