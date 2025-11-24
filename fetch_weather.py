@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import requests
 import mysql.connector
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import tomllib
 
@@ -13,11 +13,11 @@ api_cfg = secrets["api"]
 db_cfg = secrets["mysql"]
 
 API_KEY = api_cfg["openweather_api_key"]
-CITY = api_cfg.get("city", "Lahti")
+CITY_ID = api_cfg.get("city_id", 649360)
 
 URL = (
     f"https://api.openweathermap.org/data/2.5/weather"
-    f"?q={CITY}&appid={API_KEY}&units=metric"
+    f"?id={CITY_ID}&appid={API_KEY}&units=metric"
 )
 
 conn = mysql.connector.connect(
@@ -52,12 +52,12 @@ else:
     desc = data["weather"][0]["description"]
     timestamp = datetime.utcnow()
 
+    # Haetaan kaupungin nimi API-vastauksesta
+    city_name = data.get("name", "Unknown")
+
     cursor.execute(
         "INSERT INTO weather_data (city, temperature, humidity, description, timestamp) VALUES (%s, %s, %s, %s, %s)",
-        (CITY, temp, humidity, desc, timestamp)
+        (city_name, temp, humidity, desc, timestamp)
     )
     conn.commit()
-    print(f"Saved: {CITY} {temp:.1f} C, {humidity}% RH, {desc}")
-
-cursor.close()
-conn.close()
+    print(f"Saved: {city_name} {temp:.1f} C, {humidity}% RH, {desc}")

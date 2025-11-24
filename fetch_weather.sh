@@ -1,13 +1,22 @@
 #!/bin/bash
+set -e
 
-# absolute path
-CRONDIR="/home/ubuntu/cron"
+PROJECT_DIR="/home/ubuntu/cron"
+VENV_DIR="$PROJECT_DIR/venv"
+SCRIPT="$PROJECT_DIR/fetch_weather.py"
 
-# go to cron dir
-cd "$CRONDIR" || exit 1
+cd "$PROJECT_DIR" || exit 1
 
-# activate venv
-source "$CRONDIR/venv/bin/activate"
+# Luo venv vain jos ei ole olemassa
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Creating venv..."
+    python3 -m venv "$VENV_DIR"
+    source "$VENV_DIR/bin/activate"
+    pip install --upgrade pip
+    pip install -r requirements.txt
+else
+    source "$VENV_DIR/bin/activate"
+fi
 
-# run fetch_weather.py using ABSOLUTE python path
-"$CRONDIR/venv/bin/python" "$CRONDIR/fetch_weather.py"
+# Aja skripti
+python "$SCRIPT"
