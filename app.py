@@ -11,10 +11,24 @@ import requests
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_SECRET_FILE = BASE_DIR / "salaiset_jutut_eli_salasanat.toml"
 LEGACY_SECRET_FILE = BASE_DIR / "secrets.toml"
-SECRET_FILE = DEFAULT_SECRET_FILE if DEFAULT_SECRET_FILE.exists() else LEGACY_SECRET_FILE
 
-with open(SECRET_FILE, "rb") as f:
-    secrets = tomllib.load(f)
+
+def load_secrets() -> dict:
+    if DEFAULT_SECRET_FILE.exists():
+        secret_file = DEFAULT_SECRET_FILE
+    elif LEGACY_SECRET_FILE.exists():
+        secret_file = LEGACY_SECRET_FILE
+    else:
+        raise FileNotFoundError(
+            "Missing secrets file: expected 'salaiset_jutut_eli_salasanat.toml' "
+            "or legacy fallback 'secrets.toml' in the application directory."
+        )
+
+    with open(secret_file, "rb") as f:
+        return tomllib.load(f)
+
+
+secrets = load_secrets()
 
 db_cfg = secrets["mysql"]
 api_cfg = secrets["api"]
